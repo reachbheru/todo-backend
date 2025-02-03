@@ -13,16 +13,15 @@ const subtaskSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "in-progress", "completed"],
-            default: "pending",
-            required: [true, "status is required"]
+            enum: ["pending", "todo-next", "in-progress", "completed"],
+            default: "todo-next"
         },
         priority: {
             type: String,
             enum: ["low", "medium", "high"],
             default: "medium",
         },
-        parentTask: {
+        task: {
             type: Schema.Types.ObjectId,
             ref: "Task",
             required: [true, "parent task is required for subtask"],

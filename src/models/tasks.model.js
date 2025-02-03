@@ -1,5 +1,4 @@
 import mongoose,{ Schema } from "mongoose";
-import { Subtask } from "./subtasks.model.js";
 
 const taskSchema = new Schema(
     {
@@ -14,9 +13,8 @@ const taskSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "in-progress", "completed"],
-            default: "pending",
-            required: [true, "status is required"]
+            enum: ["pending", "todo-next", "in-progress", "completed"],
+            default: "pending"
         },
         priority: {
             type: String,
@@ -26,14 +24,16 @@ const taskSchema = new Schema(
         dueDate: {
             type: Date,
             required: false,
+            default: () => new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
             validate: {
                     validator: function (value) {
-                        return value > Date.now();
+                        if(!value) return true;
+                        return value.getTime() > Date.now();
                     },
                     message: "Due date can not be in past."
             }
         },
-        owner: {
+        user: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: [true, "owner is required for a task"],
@@ -43,11 +43,5 @@ const taskSchema = new Schema(
     ,
     {timestamps: true});
 
-taskSchema.pre("remove", async function(next) {
-    await Subtask.deleteMany({
-        parentTask: this._id
-    })
-    next();
-})
 
 export const Task = mongoose.model("Task", taskSchema);
