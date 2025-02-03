@@ -4,9 +4,12 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const options = {
-    httpOnly: true,
-    secure: true
-}
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production", // Secure in production
+    sameSite: "strict", 
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: "/" // Make it accessible everywhere
+};
 
 const generateAccessAndRefreshToken = async(user) => {
     try {
@@ -75,7 +78,7 @@ const loginUser = asyncHandler(async(req, res) => {
         new ApiResponse(
             200,
             {
-                user: loggedInUser
+                user: loggedInUser,accessToken,refreshToken
             },
             "user logged in successfully"
         )
