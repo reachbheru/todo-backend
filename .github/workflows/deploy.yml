@@ -18,7 +18,7 @@ jobs:
         chmod 600 private_key.pem
 
     - name: Test SSH Connection
-      run: ssh -i private_key.pem -o StrictHostKeyChecking=no user@host
+      run: ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
       
     - name: SSH and Deploy
       uses: appleboy/ssh-action@v0.1.6
