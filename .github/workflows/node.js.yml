@@ -16,9 +16,9 @@ jobs:
         run: npm install
         
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1 
+        uses: shimataro/ssh-key-action@v2   
         with:
-          host: ${{ secrets.EC2_IP }}
+          known_hosts: ${{ secrets.EC2_IP }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
