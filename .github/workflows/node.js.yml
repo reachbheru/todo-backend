@@ -14,15 +14,17 @@ jobs:
 
         
       - name: Deploy via SSH
-        uses: shimataro/ssh-key-action@v2   
+        uses: appleboy/ssh-action@v0.1.6   
         with:
-          known_hosts: ${{ secrets.EC2_IP }}
+          host: ${{ secrets.EC2_IP }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/todo-backend
-            git pull origin main
+            git pull 
             touch .env
             echo "${{ secrets.ENV }}" > .env
             npm install
-            pm2 restart src/server.js
+            pm2 restart all
+            pm2 save
+            pm2 list
