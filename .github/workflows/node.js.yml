@@ -20,9 +20,9 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd todo-backend
+            cd /home/ubuntu/todo-backend
             git pull origin main
             touch .env
             echo "${{ secrets.ENV }}" > .env
             npm install
-            pm2 restart server.js
+            pm2 restart src/server.js
