@@ -12,8 +12,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: npm install
         
       - name: Deploy via SSH
         uses: shimataro/ssh-key-action@v2   
@@ -22,9 +20,9 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/todo-backend
+            cd todo-backend
             git pull origin main
             touch .env
             echo "${{ secrets.ENV }}" > .env
             npm install
-            pm2 restart your-app-name
+            pm2 restart server.js
