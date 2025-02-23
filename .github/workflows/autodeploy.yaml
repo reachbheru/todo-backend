@@ -26,7 +26,9 @@ jobs:
             --parameters 'commands=[
               "cd /home/ubuntu/todo-backend",
               "git pull origin main",
-              "echo  \"${{ secrets.ENV }}\" > .env",
+              "echo \"${{ secrets.ENV }}\" > .env",
               "npm ci",
-              "pm2 restart all"
+              "pm2 stop todo-backend || true",
+              "pm2 start src/server.js --name todo-backend --watch --node-args=\"-r dotenv/config\"",
+              "pm2 save"
             ]'
