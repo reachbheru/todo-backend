@@ -1,4 +1,4 @@
-name: Deploy via SSM
+name: Deploy via AWS SSM
 
 on:
   push:
@@ -11,21 +11,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy via AWS SSM
-        uses: aws-actions/amazon-ec2-run-command@v1  # Correct action name
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          instance-ids: ${{ secrets.EC2_INSTANCE_ID }}
-          document-name: AWS-RunShellScript
-          parameters: |
-            commands:
-              - cd /home/ubuntu/todo-backend
-              - git pull origin main  # Specify origin/branch
-              - touch .env
-              - echo "${{ secrets.ENV }}" > .env
-              - npm install --production
-              - pm2 restart all
-          region: ap-south-1
-          wait-for-completion: true  # Wait for command to finish
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Run Deployment Commands via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /home/ubuntu/todo-backend",
+              "git pull origin main",
+              "touch .env",
+              "echo `${{ secrets.ENV }}` > .env",
+              "npm install --production",
+              "pm2 restart all"
+            ]'
