@@ -26,7 +26,7 @@ jobs:
             --parameters 'commands=[
               "cd /home/ubuntu/todo-backend",
               "git pull origin main",
-              "echo -e \"${{ secrets.ENV }}\" > .env",
+              "echo  \"${{ secrets.ENV }}\" > .env",
               "npm ci",
               "pm2 restart all"
             ]'
