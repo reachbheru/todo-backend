@@ -1,0 +1,34 @@
+name: Deploy via AWS SSM
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Run Deployment Commands via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /home/ubuntu/todo-backend",
+              "git pull origin main",
+              "echo \"${{ secrets.ENV }}\" > .env",
+              "npm ci",
+              "pm2 stop todo-backend || true",
+              "pm2 start src/server.js --name todo-backend --watch --node-args=\"-r dotenv/config\"",
+              "pm2 save"
+            ]'
