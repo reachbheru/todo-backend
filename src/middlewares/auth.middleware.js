@@ -19,7 +19,8 @@ const decodeCognitoToken = asyncHandler(async (req, _, next) => {
     });
 
     const payload = await verifier.verify(idToken);
-    const user = await User.findOne({ email: payload.email }).select(
+    const email = payload.email;
+    const user = await User.findOne({ email }).select(
       "-password -refreshToken"
     );
     if (!user) {
