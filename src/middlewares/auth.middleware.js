@@ -1,30 +1,36 @@
-import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/users.model.js";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
-const decodeJWT = asyncHandler(async (req, _, next) => {
+const decodeCognitoToken = asyncHandler(async (req, _, next) => {
+  const idToken = req.header("x-id-token");
 
-    const token = req.header("Authorization").replace("Bearer ","");
+  if (!idToken) {
+    throw new ApiError(401, "Unauthorized request");
+  }
 
-    if(!token){
-        throw new ApiError(401, "Unauthorized request");
+  try {
+    const verifier = CognitoJwtVerifier.create({
+      userPoolId: process.env.COGNITO_USER_POOL_ID,
+      tokenUse: "id",
+      clientId: process.env.COGNITO_CLIENT_ID,
+    });
+
+    const payload = await verifier.verify(idToken);
+    const email = payload.email;
+    const user = await User.findOne({ email }).select(
+      "-password -refreshToken"
+    );
+    if (!user) {
+      throw new ApiError(401, "invalid token");
     }
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    throw new ApiError(401, "Invalid or expired token");
+  }
+});
 
-    try {
-
-        const decodedJWT = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const user = await User.findById(decodedJWT._id).select("-password -refreshToken");
-        if(!user){
-            throw new ApiError(401, "invalid token");
-        }
-        req.user = user;
-        next();
-
-    } 
-    catch (error) {
-        throw new ApiError(401, "invalid token");
-    }
-})
-
-export { decodeJWT }
+export { decodeCognitoToken };
