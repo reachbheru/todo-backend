@@ -1,17 +1,17 @@
 import { Router } from "express";
 import { createTask, getTasks, updateTask, deleteTask } from "../controllers/tasks.controller.js";
 import { createSubtask, updateSubtask, deleteSubtask, getSubtasks } from "../controllers/subtasks.controller.js";
-import { decodeJWT } from "../middlewares/auth.middleware.js";
+import { decodeCognitoToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("").get(decodeJWT,getTasks);
-router.route("").post(decodeJWT,createTask);
-router.route("").patch(decodeJWT,updateTask);
-router.route("/:task_id").delete(decodeJWT,deleteTask);
-router.route("/:task_id/subtasks").get(decodeJWT,getSubtasks);
-router.route("/subtasks").post(decodeJWT,createSubtask);
-router.route("/subtasks").patch(decodeJWT,updateSubtask);
-router.route("/subtasks/:subtask_id").delete(decodeJWT,deleteSubtask);
+router.route("").get(decodeCognitoToken,getTasks);
+router.route("").post(decodeCognitoToken,createTask);
+router.route("").patch(decodeCognitoToken,updateTask);
+router.route("/:task_id").delete(decodeCognitoToken,deleteTask);
+router.route("/:task_id/subtasks").get(decodeCognitoToken,getSubtasks);
+router.route("/subtasks").post(decodeCognitoToken,createSubtask);
+router.route("/subtasks").patch(decodeCognitoToken,updateSubtask);
+router.route("/subtasks/:subtask_id").delete(decodeCognitoToken,deleteSubtask);
 
 export default router;
